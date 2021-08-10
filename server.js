@@ -1,5 +1,3 @@
-;(_ => {
-
 const express = require('express')
 const app = express()
 
@@ -15,5 +13,3 @@ app.post('/function/test', ((req, res) => {
 }))
 
 app.listen(3030)
-
-})()
