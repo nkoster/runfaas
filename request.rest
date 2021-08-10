@@ -1,4 +1,4 @@
-POST http://localhost:3030/function/test
+POST http://localhost:3030/function/aap
 Content-Type: application/json
 
 {
