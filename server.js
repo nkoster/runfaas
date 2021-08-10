@@ -5,7 +5,7 @@ const app = express()
 
 app.use(express.json())
 
-app.post('/function/test', ((req, middleware, res) => {
+app.post('/function/test', ((req, res) => {
   const func = require('./test')
   try {
     func(req.body, res)
