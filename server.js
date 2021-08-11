@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+const API_PORT = process.env.API_PORT || 3030
 
 app.use(express.json())
 
@@ -13,10 +14,13 @@ functions.forEach(f => {
     const func = require(`./${f}`)
     try {
       func(req.body, res)
+      console.log(`Invoked function "${f}"`)
     } catch(err) {
+      console.log(err.message)
       res.status(500).send()
     }
   }))
 })
 
-app.listen(3030)
+app.listen(API_PORT, _ =>
+  console.log(`RunFaaS running at port ${API_PORT}`))
