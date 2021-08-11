@@ -1,4 +1,4 @@
-POST http://localhost:3030/function/test
+POST http://localhost:3030/function/test1
 Content-Type: application/json
 
 {
@@ -7,7 +7,7 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:3030/function/aap
+POST http://localhost:3030/function/test2
 Content-Type: application/json
 
 {
