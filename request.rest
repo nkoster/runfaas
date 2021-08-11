@@ -1,6 +1,15 @@
-POST http://localhost:3030/function/aap
+POST http://localhost:3030/function/test
 Content-Type: application/json
 
 {
   "name": "niels"
+}
+
+###
+
+POST http://localhost:3030/function/aap
+Content-Type: application/json
+
+{
+  "name": "aapje"
 }
