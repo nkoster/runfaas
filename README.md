@@ -22,36 +22,23 @@ Make or copy a folder inside the functions/ folder.
 The name of that folder will be name of the function and also the name of the API endpoint.
 Inside the function folder should live an index.js file.
 
-Here is an example index.js with minimal code:
+Here is an example function, named "test1".
 
-```./functions/test1/index.js```
-
-```javascript
+```
+mkdir functions/test1
+cd functions/test1
+npm init -y
+npm i pg
+cat > index.js << DUDE
 module.exports = (body, res) => {
   const pg = require('pg')
   console.log(pg.defaults.host)
   const { name } = body
   res.send({ message: `name was ${name}`})
 }
+DUDE
 ```
 
-With an accompanying package.json like this:
-
-```javascript
-{
-  "name": "test1",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "pg": "^8.7.1"
-  }
-}
-```
+Nodemon will pick up the changes in the functions/ folder.
+The functions is available at API endpoint "http://localhost:3030/function/test1"
 
