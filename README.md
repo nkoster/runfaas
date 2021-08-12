@@ -29,6 +29,8 @@ module.exports = (body, res) => {
 }
 ```
 
+```body``` contains the http post data and ```res``` an [express](https://expressjs.com/) response object.
+
 Here is an example, with a function named "test1", and a dependency "pg", which is a nodejs postgresql client module.
 
 ```
