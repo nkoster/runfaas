@@ -12,7 +12,7 @@ mkdir functions
 nodemon server.js
 ```
 
-I am using nodemon here because runfaas is not able to detect and process changes inside
+I am using nodemon here because "runfaas" is not able to detect and process changes inside
 the functions/ folder at this moment so nodemon takes care of that for now.
 To fix that will be my next challenge.
 
