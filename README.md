@@ -24,6 +24,8 @@ Inside the function folder should live an index.js file.
 
 Here is an example index.js with minimal code:
 
+```./functions/test1/index.js```
+
 ```javascript
 module.exports = (body, res) => {
   const pg = require('pg')
