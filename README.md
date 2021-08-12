@@ -13,7 +13,7 @@ nodemon server.js
 ```
 
 I am using nodemon here because runfaas is not able to detect and process changes inside
-the functions/ folder at this moment so nodemon takes care of that at this moment.
+the functions/ folder at this moment so nodemon takes care of that for now.
 That's my next challenge.
 
 ### Deploy a FaaS function
