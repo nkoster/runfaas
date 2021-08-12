@@ -13,3 +13,18 @@ Content-Type: application/json
 {
   "name": "aapje"
 }
+
+###
+
+POST http://localhost:3030/function/test1
+Content-Type: application/json
+
+{
+    "search": {
+        "queryKafkaTopic": "",
+        "queryIdentifierType": "",
+        "queryIdentifierValue": "bloedd",
+        "queryKafkaOffset": ""
+    },
+    "queryId": "apekop"
+}
