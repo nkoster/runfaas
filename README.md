@@ -12,9 +12,8 @@ mkdir functions
 nodemon server.js
 ```
 
-I am using nodemon here because "runfaas" is not able to detect and process changes inside
-the functions/ folder at this moment so nodemon takes care of that for now.
-To fix that will be my next challenge.
+The server will detect files changes inside the functions/ folder
+and will reload when new functions are added or when old functions are removed.
 
 ### Deploy a FaaS function
 
