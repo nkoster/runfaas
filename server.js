@@ -12,9 +12,8 @@ const functions = fs.readdirSync(__dirname + '/functions')
     }
   })
 
-if (!functions) {
+if (functions.length === 0) {
   console.log(`No functions found in ${__dirname}/functions/`)
-  process.exit(3)
 }
 
 if (cluster.isMaster) {
