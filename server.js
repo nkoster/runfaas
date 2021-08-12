@@ -91,7 +91,7 @@ if (cluster.isWorker) {
     }))
   }
   
-  app.listen(API_PORT, _ => console.log(`RunFaaS running at port ${API_PORT}\n${functions.length} function${
+  app.listen(API_PORT, _ => console.log(`\n--- RunFaaS running at port ${API_PORT}\n\n--- ${functions.length} function${
     functions.length != 1 ? 's' : ''
   } loaded`))
   
