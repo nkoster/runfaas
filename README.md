@@ -32,3 +32,24 @@ module.exports = (body, res) => {
   res.send({ message: `name was ${name}`})
 }
 ```
+
+With an accompanying package.json like this:
+
+```json
+{
+  "name": "test1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "pg": "^8.7.1"
+  }
+}
+```
+
