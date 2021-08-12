@@ -13,7 +13,7 @@ node server.js
 ```
 
 The server will detect files changes inside the functions/ folder
-and will reload when new functions are added or when old functions are removed. (experimental)
+and will reload whenever new functions are added or when old functions are removed. (experimental)
 
 ### Deploy a FaaS function
 
