@@ -14,15 +14,22 @@ nodemon server.js
 
 I am using nodemon here because runfaas is not able to detect and process changes inside
 the functions/ folder at this moment so nodemon takes care of that for now.
-That's my next challenge.
+To fix that will be my next challenge.
 
 ### Deploy a FaaS function
 
 Make or copy a folder inside the functions/ folder.
-The name of that folder will be name of the function and also the name of the API endpoint.
-Inside the function folder should live an index.js file.
+The name of that folder will be name of the function, and also the name of the API endpoint.
+Inside the function name folder should live an index.js file with a layout like this:
 
-Here is an example function, named "test1".
+```
+module.exports = (body, res) => {
+  const { name } = body
+  res.send({ message: `your name is ${name}`})
+}
+```
+
+Here is an example function, named "test1", with a dependency "pg", which is a nodejs postgresql client module.
 
 ```
 mkdir functions/test1
