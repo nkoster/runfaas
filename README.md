@@ -28,7 +28,7 @@ module.exports = (body, res) => {
 }
 ```
 
-```body``` contains the http post data and ```res``` an [express](https://expressjs.com/) response object.
+**body** contains the POST data and **res** an [express](https://expressjs.com/) response object.
 
 ### Example
 
