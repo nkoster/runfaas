@@ -54,6 +54,7 @@ if (cluster.isMaster) {
     .on('unlink', _ => restartWorker())
 
   console.log(`\n--- RunFaaS running at port ${API_PORT}`)
+
 }
 
 if (cluster.isWorker) {
