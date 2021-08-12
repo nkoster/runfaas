@@ -53,6 +53,7 @@ if (cluster.isMaster) {
     .on('change', _ => restartWorker())
     .on('unlink', _ => restartWorker())
 
+  console.log(`\n--- RunFaaS running at port ${API_PORT}`)
 }
 
 if (cluster.isWorker) {
@@ -91,7 +92,7 @@ if (cluster.isWorker) {
     }))
   }
   
-  app.listen(API_PORT, _ => console.log(`\n--- RunFaaS running at port ${API_PORT}\n\n--- ${functions.length} function${
+  app.listen(API_PORT, _ => console.log(`--- ${functions.length} function${
     functions.length != 1 ? 's' : ''
   } loaded`))
   
