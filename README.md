@@ -17,9 +17,9 @@ and will reload whenever new functions are added or when old functions are remov
 
 ### Deploy a FaaS function
 
-Make or copy a folder inside the functions/ folder.
-The name of that folder will be name of the function, and also the name of the API endpoint.
-Inside the function name folder should live an index.js file with a layout like this:
+Make or copy a folder inside the **functions/** folder.
+The *name* of that folder will be *name* of the function, and also the *name* of the API endpoint.
+Inside the function *name* folder should live an **index.js** file with a layout like this:
 
 ```
 module.exports = (body, res) => {
