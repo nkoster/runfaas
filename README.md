@@ -50,4 +50,3 @@ DUDE
 
 Nodemon will pick up the changes in the functions/ folder.
 The functions is available at API endpoint "http://localhost:3030/function/test1"
-
