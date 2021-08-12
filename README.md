@@ -9,7 +9,7 @@ git clone https://github.com/nkoster/runfaas
 cd runfaas
 npm i
 mkdir functions
-nodemon server.js
+node server.js
 ```
 
 The server will detect files changes inside the functions/ folder
