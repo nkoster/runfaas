@@ -29,7 +29,7 @@ module.exports = (body, res) => {
 }
 ```
 
-Here is an example function, named "test1", with a dependency "pg", which is a nodejs postgresql client module.
+Here is an example, with a function named "test1", and a dependency "pg", which is a nodejs postgresql client module.
 
 ```
 mkdir functions/test1
