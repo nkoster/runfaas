@@ -1,8 +1,13 @@
+;(async _ => {
+
+const chokidar = require('chokidar')
 const express = require('express')
 const cluster = require('cluster')
 const fs = require('fs')
 
 const API_PORT = process.env.API_PORT || 3030
+
+global.fileCounter = 0
 
 const functions = fs.readdirSync(__dirname + '/functions')
   .map(f => {
@@ -17,12 +22,37 @@ if (functions.length === 0) {
 }
 
 if (cluster.isMaster) {
-  cluster.fork()
-  cluster.on('exit', (worker, code, signal) => {
-    if (signal) console.log(`signal ${signal} received`)
-    console.log(`worker ${worker.id} with PID ${worker.process.pid} terminated with exit code ${code}`)
-    cluster.fork()
+
+  const glob = require('glob')
+
+  const files = await new Promise((resolve, reject) => {
+    glob('functions' + '/*/!(node_modules)', (err, result) => {
+      if (err) reject(null)
+      resolve(result)
+    })
   })
+
+  global.worker = cluster.fork()
+
+  cluster.on('exit', _ => global.worker = cluster.fork())
+
+  const watcher = chokidar.watch('functions/', {
+    ignored: [/^\./, /node_modules/, /\.git/],
+    persistent: true
+  })
+
+  const restartWorker = _ => {
+    fileCounter++
+    if (fileCounter > files.length)
+      console.log('--- Reload')
+      process.kill(worker.process.pid)
+  }
+
+  watcher
+    .on('add', _ => restartWorker())
+    .on('change', _ => restartWorker())
+    .on('unlink', _ => restartWorker())
+
 }
 
 if (cluster.isWorker) {
@@ -66,3 +96,5 @@ if (cluster.isWorker) {
   } loaded`))
   
 }
+
+})()
