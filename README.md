@@ -35,7 +35,7 @@ module.exports = (body, res) => {
 
 With an accompanying package.json like this:
 
-```json
+```javascript
 {
   "name": "test1",
   "version": "1.0.0",
