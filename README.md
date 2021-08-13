@@ -22,7 +22,7 @@ If you like, you can disable the authentication part by adding the following lin
 AUTHENTICATION=false
 ```
 
-In case you want to use a different path for your functions base directory, you can specify that in the **.env** as well:
+In case you want to use a different path for your functions base directory, you can also specify that in the **.env** file:
 
 ```
 FUNCTIONS_PATH=/faas/api/functions
