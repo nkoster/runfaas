@@ -13,14 +13,14 @@ echo 'ACCESS_TOKEN_SECRET=MyBigSecret' >>.env
 node server.js
 ```
 
-The server will detect files changes inside the functions/ folder
+The server will detect files changes inside the functions/ directory
 and will reload whenever new functions are added or when old functions are removed. (experimental)
 
 ### Deploy a FaaS function
 
-Make or copy a folder inside the **functions/** folder.
-The *name* of that folder will be *name* of the function, and also the *name* of the API endpoint.
-Inside the function *name* folder should live an **index.js** file with a layout like this:
+Make or copy a directory inside the **functions/** directory.
+The *name* of that directory will be *name* of the function, and also the *name* of the API endpoint.
+Inside the function *name* directory should live an **index.js** file with a layout like this:
 
 ```javascript
 module.exports = (body, res) => {
