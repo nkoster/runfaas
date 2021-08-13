@@ -92,7 +92,6 @@ if (cluster.isWorker) {
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
       if (err) {
         console.log('--- Token did not verify')
-        console.log(process.env.ACCESS_TOKEN_SECRET)
         return res.status(200).send({ error: 'Token did not verify'})
       }
       req.user = user
