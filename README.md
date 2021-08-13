@@ -21,7 +21,7 @@ and will reload whenever new functions are added or when old functions are remov
 ### Deploy a FaaS function
 
 Make or copy a directory inside the **functions/** directory.
-The *name* of that directory will be *name* of the function, and also the *name* of the API endpoint.
+The *name* of that directory will be *name* of the function, and also part of the *name* for the API endpoint.
 Inside the function *name* directory should live an **index.js** file with a layout like this:
 
 ```javascript
