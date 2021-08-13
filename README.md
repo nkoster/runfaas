@@ -51,3 +51,15 @@ DUDE
 ```
 
 Function **test1** is now available for authenticated POST requests at endpoint http://localhost:3030/function/test1
+
+If you like, you can disable the authentication part by adding the following line to your **.env** file:
+
+```
+AUTHENTICATION=false
+```
+
+In case you want to use a different path for your functions base directory, you can specify that in the **.env** as well:
+
+```
+FUNCTIONS_PATH=/faas/api/functions
+```
