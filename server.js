@@ -7,7 +7,7 @@ const fs = require('fs')
 
 const API_PORT = process.env.API_PORT || 3030
 
-global.fileCounter = 0
+const fileCounter = { state: 0 }
 
 const functions = fs.readdirSync(__dirname + '/functions')
   .map(f => {
@@ -32,9 +32,9 @@ if (cluster.isMaster) {
     })
   })
 
-  global.worker = cluster.fork()
+  const worker = { state: cluster.fork() }
 
-  cluster.on('exit', _ => global.worker = cluster.fork())
+  cluster.on('exit', _ => worker.state = cluster.fork())
 
   const watcher = chokidar.watch('functions/', {
     ignored: [/^\./, /node_modules/, /\.git/],
@@ -42,15 +42,14 @@ if (cluster.isMaster) {
   })
 
   const restartWorker = _ => {
-    fileCounter++
-    if (fileCounter > files.length)
+    fileCounter.state++
+    if (fileCounter.state > files.length)
       console.log('--- Reload')
-      process.kill(worker.process.pid)
+      process.kill(worker.state.process.pid)
   }
 
   watcher
     .on('add', _ => restartWorker())
-    .on('change', _ => restartWorker())
     .on('unlink', _ => restartWorker())
 
   console.log(`\n--- RunFaaS running at port ${API_PORT}`)
