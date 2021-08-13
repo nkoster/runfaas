@@ -2,6 +2,8 @@
 
 Simple "function as a service" server, with authentication.
 
+This thing exists because I didn't want to pay for a license to be able to make use of authentication in "openfaas".
+
 ### Install
 
 ```
