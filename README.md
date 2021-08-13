@@ -1,6 +1,6 @@
 ## runfaas
 
-Simple "function as a service" server, with authenticattion, in nodejs.
+Simple "function as a service" server, with authentication, in nodejs.
 
 ### Install
 
