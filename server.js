@@ -2,6 +2,7 @@
 
 require('dotenv').config()
 
+const log = console.log.bind(console)
 const chokidar = require('chokidar')
 const express = require('express')
 const cluster = require('cluster')
@@ -12,7 +13,7 @@ const API_PORT = process.env.API_PORT || 3030
 
 const fileCounter = { state: 0 }
 
-const functions = fs.readdirSync(__dirname + '/functions')
+const functions = fs.readdirSync(process.env.FUNCTIONS_PATH)
   .map(f => {
     return {
       name: f,
@@ -21,7 +22,7 @@ const functions = fs.readdirSync(__dirname + '/functions')
   })
 
 if (functions.length === 0) {
-  console.log(`No functions found in ${__dirname}/functions/`)
+  log(`No functions found in ${process.env.FUNCTIONS_PATH}/`)
 }
 
 if (cluster.isMaster) {
@@ -29,7 +30,7 @@ if (cluster.isMaster) {
   const glob = require('glob')
 
   const files = await new Promise((resolve, reject) => {
-    glob('functions' + '/*/!(node_modules)', (err, result) => {
+    glob(process.env.FUNCTIONS_PATH + '/*/!(node_modules)', (err, result) => {
       if (err) reject(null)
       resolve(result)
     })
@@ -39,7 +40,7 @@ if (cluster.isMaster) {
 
   cluster.on('exit', _ => worker.state = cluster.fork())
 
-  const watcher = chokidar.watch('functions/', {
+  const watcher = chokidar.watch(`${process.env.FUNCTIONS_PATH}/`, {
     ignored: [/^\./, /node_modules/, /\.git/],
     persistent: true
   })
@@ -47,7 +48,7 @@ if (cluster.isMaster) {
   const restartWorker = _ => {
     fileCounter.state++
     if (fileCounter.state > files.length) {
-      console.log('--- Reload')
+      log('--- Reload')
       process.kill(worker.state.process.pid)
     }
   }
@@ -56,7 +57,7 @@ if (cluster.isMaster) {
     .on('add', _ => restartWorker())
     .on('unlink', _ => restartWorker())
 
-  console.log(`--- RunFaaS running at port ${API_PORT}`)
+  log(`--- RunFaaS running at port ${API_PORT}`)
 
 }
 
@@ -77,7 +78,7 @@ if (cluster.isWorker) {
     const start = process.hrtime()
     res.on('close', _ => {
         const durationInMilliseconds = getDurationInMilliseconds(start)
-        console.log(`--- Function ended after ${durationInMilliseconds.toLocaleString()} ms`)
+        log(`--- Function ended after ${durationInMilliseconds.toLocaleString()} ms`)
     })
     next()
   })
@@ -86,12 +87,12 @@ if (cluster.isWorker) {
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1]
     if (!token) {
-      console.log('--- No token supplied')
+      log('--- No token supplied')
       return res.status(200).send({ error: 'No token supplied'})
     }
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
       if (err) {
-        console.log('--- Token did not verify')
+        log('--- Token did not verify')
         return res.status(200).send({ error: 'Token did not verify'})
       }
       req.user = user
@@ -101,19 +102,20 @@ if (cluster.isWorker) {
   
   for (let f = 0; f < functions.length; f++) {
     app.post(`/function/${functions[f].name}`, authenticateToken, ((req, res) => {
-      const func = require(`./functions/${functions[f].name}/index`)
+      const func =
+        require(`${process.env.FUNCTIONS_PATH}/${functions[f].name}/index`)
       functions[f].counter += 1
-      console.log(`--- Invoking function "${functions[f].name}" (${functions[f].counter})`)
+      log(`--- Invoking function "${functions[f].name}" (${functions[f].counter})`)
       try {
         func(req.body, res)
       } catch(err) {
-        console.log(err.message)
+        log(err.message)
         res.status(500).send()
       }
     }))
   }
   
-  app.listen(API_PORT, _ => console.log(`--- ${functions.length} function${
+  app.listen(API_PORT, _ => log(`--- ${functions.length} function${
     functions.length != 1 ? 's' : ''
   } loaded`))
 
