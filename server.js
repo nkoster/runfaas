@@ -87,13 +87,13 @@ if (cluster.isWorker) {
     const token = authHeader && authHeader.split(' ')[1]
     if (!token) {
       console.log('--- No token supplied')
-      return res.redirect('/')
+      return res.status(200).send({ error: 'No token supplied'})
     }
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
       if (err) {
         console.log('--- Token did not verify')
         console.log(process.env.ACCESS_TOKEN_SECRET)
-        return res.redirect('/')
+        return res.status(200).send({ error: 'Token did not verify'})
       }
       req.user = user
       next()
