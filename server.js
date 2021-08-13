@@ -2,6 +2,7 @@
 
 require('dotenv').config()
 const useAuth = process.env.AUTHENTICATION === 'false' ? false : true
+const functionsPath = './functions'
 const log = console.log.bind(console)
 const chokidar = require('chokidar')
 const express = require('express')
@@ -13,7 +14,7 @@ const API_PORT = process.env.API_PORT || 3030
 
 const fileCounter = { state: 0 }
 
-const functions = fs.readdirSync(process.env.FUNCTIONS_PATH)
+const functions = fs.readdirSync(functionsPath)
   .map(f => {
     return {
       name: f,
@@ -22,7 +23,7 @@ const functions = fs.readdirSync(process.env.FUNCTIONS_PATH)
   })
 
 if (functions.length === 0) {
-  log(`No functions found in ${process.env.FUNCTIONS_PATH}/`)
+  log(`No functions found in ${functionsPath}/`)
 }
 
 if (cluster.isMaster) {
@@ -30,7 +31,7 @@ if (cluster.isMaster) {
   const glob = require('glob')
 
   const files = await new Promise((resolve, reject) => {
-    glob(process.env.FUNCTIONS_PATH + '/*/!(node_modules)', (err, result) => {
+    glob(functionsPath + '/*/!(node_modules)', (err, result) => {
       if (err) reject(null)
       resolve(result)
     })
@@ -40,7 +41,7 @@ if (cluster.isMaster) {
 
   cluster.on('exit', _ => worker.state = cluster.fork())
 
-  const watcher = chokidar.watch(`${process.env.FUNCTIONS_PATH}/`, {
+  const watcher = chokidar.watch(`${functionsPath}/`, {
     ignored: [/^\./, /node_modules/, /\.git/, /\/tls\//],
     persistent: true
   })
@@ -84,28 +85,33 @@ if (cluster.isWorker) {
   })
 
   const authenticateToken = (req, res, next) => {
-    if (useAuth) {
-      const authHeader = req.headers['authorization']
-      const token = authHeader && authHeader.split(' ')[1]
-      if (!token) {
-        log('--- No token supplied')
-        return res.status(200).send({ error: 'No token supplied'})
-      }
-      jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-        if (err) {
-          log('--- Token did not verify')
-          return res.status(200).send({ error: 'Token did not verify'})
-        }
-        req.user = user
-      })
+    const failure = { state: false }
+    if (!useAuth) {
+      next()
+      return
     }
-    next()
+    const authHeader = req.headers['authorization']
+    const token = authHeader && authHeader.split(' ')[1]
+    if (!token) {
+      log('--- No token supplied')
+      failure.state = true
+      return res.status(200).send({ error: 'No token supplied'})
+    }
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+      if (err) {
+        log('--- Token did not verify')
+        failure.state = true
+        return res.status(200).send({ error: 'Token did not verify'})
+      }
+      req.user = user
+      next()
+    })
   }
   
   for (let f = 0; f < functions.length; f++) {
     app.post(`/function/${functions[f].name}`, authenticateToken, ((req, res) => {
       const func =
-        require(`${process.env.FUNCTIONS_PATH}/${functions[f].name}/index`)
+        require(`${functionsPath}/${functions[f].name}/index`)
       functions[f].counter += 1
       log(`--- Invoking function "${functions[f].name}" (${functions[f].counter})`)
       try {
