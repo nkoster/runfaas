@@ -1,7 +1,7 @@
 ;(async _ => {
 
 require('dotenv').config()
-
+const useAuth = process.env.AUTHENTICATION === 'false' ? false : true
 const log = console.log.bind(console)
 const chokidar = require('chokidar')
 const express = require('express')
@@ -84,20 +84,22 @@ if (cluster.isWorker) {
   })
 
   const authenticateToken = (req, res, next) => {
-    const authHeader = req.headers['authorization']
-    const token = authHeader && authHeader.split(' ')[1]
-    if (!token) {
-      log('--- No token supplied')
-      return res.status(200).send({ error: 'No token supplied'})
-    }
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-      if (err) {
-        log('--- Token did not verify')
-        return res.status(200).send({ error: 'Token did not verify'})
+    if (useAuth) {
+      const authHeader = req.headers['authorization']
+      const token = authHeader && authHeader.split(' ')[1]
+      if (!token) {
+        log('--- No token supplied')
+        return res.status(200).send({ error: 'No token supplied'})
       }
-      req.user = user
-      next()
-    })
+      jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+        if (err) {
+          log('--- Token did not verify')
+          return res.status(200).send({ error: 'Token did not verify'})
+        }
+        req.user = user
+      })
+    }
+    next()
   }
   
   for (let f = 0; f < functions.length; f++) {
