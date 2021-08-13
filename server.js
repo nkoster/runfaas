@@ -43,9 +43,10 @@ if (cluster.isMaster) {
 
   const restartWorker = _ => {
     fileCounter.state++
-    if (fileCounter.state > files.length)
+    if (fileCounter.state > files.length) {
       console.log('--- Reload')
       process.kill(worker.state.process.pid)
+    }
   }
 
   watcher
