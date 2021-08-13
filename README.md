@@ -33,7 +33,7 @@ module.exports = (body, res) => {
 
 ### Example
 
-Here is an example, with a function named "test1", and a dependency "pg", which is a nodejs postgresql client module.
+Here is an example, with a function named **test1**, and a dependency **pg**, which is a nodejs postgresql client module.
 
 ```
 mkdir functions/test1
@@ -50,4 +50,4 @@ module.exports = (body, res) => {
 DUDE
 ```
 
-Function "test1" is now available for POST requests at endpoint "http://localhost:3030/function/test1"
+Function *test1* is now available for POST requests at endpoint **http://localhost:3030/function/test1**
