@@ -41,21 +41,21 @@ if (cluster.isMaster) {
   cluster.on('exit', _ => worker.state = cluster.fork())
 
   const watcher = chokidar.watch(`${process.env.FUNCTIONS_PATH}/`, {
-    ignored: [/^\./, /node_modules/, /\.git/],
+    ignored: [/^\./, /node_modules/, /\.git/, /\/tls\//],
     persistent: true
   })
 
-  const restartWorker = _ => {
+  const restartWorker = path => {
     fileCounter.state++
     if (fileCounter.state > files.length) {
-      log('--- Reload')
+      log(`--- Reload (${path})`)
       process.kill(worker.state.process.pid)
     }
   }
 
   watcher
-    .on('add', _ => restartWorker())
-    .on('unlink', _ => restartWorker())
+    .on('add', path => restartWorker(path))
+    .on('unlink', path => restartWorker(path))
 
   log(`--- RunFaaS running at port ${API_PORT}`)
 
