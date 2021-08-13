@@ -2,8 +2,6 @@
 
 Simple "function as a service" server, with authentication.
 
-This thing exists because I do not want to pay for a license to be able to make use of single-sign-on authentication in "[openfaas](https://docs.openfaas.com/openfaas-pro/sso/)".
-
 ### Install
 
 ```
