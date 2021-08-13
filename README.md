@@ -45,7 +45,7 @@ module.exports = (body, res) => {
   const pg = require('pg')
   console.log(pg.defaults.host)
   const { name } = body
-  res.send({ message: `name was ${name}`})
+  res.send({ message: `name was ${name}` })
 }
 DUDE
 ```
