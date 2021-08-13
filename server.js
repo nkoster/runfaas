@@ -117,7 +117,7 @@ if (cluster.isWorker) {
   
   app.listen(API_PORT, _ => log(`--- ${functions.length} function${
     functions.length != 1 ? 's' : ''
-  } loaded`))
+  } active`))
 
 }
 
