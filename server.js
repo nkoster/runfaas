@@ -73,7 +73,7 @@ if (cluster.isWorker) {
     const start = process.hrtime()
     res.on('close', _ => {
         const durationInMilliseconds = getDurationInMilliseconds(start)
-        console.log(`--- Function finished after ${durationInMilliseconds.toLocaleString()} ms`)
+        console.log(`--- Function ended after ${durationInMilliseconds.toLocaleString()} ms`)
     })
     next()
   })
