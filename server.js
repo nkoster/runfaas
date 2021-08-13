@@ -1,9 +1,12 @@
 ;(async _ => {
 
+require('dotenv').config()
+
 const chokidar = require('chokidar')
 const express = require('express')
 const cluster = require('cluster')
 const fs = require('fs')
+const jwt = require('jsonwebtoken')
 
 const API_PORT = process.env.API_PORT || 3030
 
@@ -78,9 +81,27 @@ if (cluster.isWorker) {
     })
     next()
   })
+
+  const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization']
+    const token = authHeader && authHeader.split(' ')[1]
+    if (!token) {
+      console.log('--- No token supplied')
+      return res.redirect('/')
+    }
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+      if (err) {
+        console.log('--- Token did not verify')
+        console.log(process.env.ACCESS_TOKEN_SECRET)
+        return res.redirect('/')
+      }
+      req.user = user
+      next()
+    })
+  }
   
   for (let f = 0; f < functions.length; f++) {
-    app.post(`/function/${functions[f].name}`, ((req, res) => {
+    app.post(`/function/${functions[f].name}`, authenticateToken, ((req, res) => {
       const func = require(`./functions/${functions[f].name}/index`)
       functions[f].counter += 1
       console.log(`--- Invoking function "${functions[f].name}" (${functions[f].counter})`)
