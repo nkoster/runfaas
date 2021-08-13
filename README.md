@@ -9,6 +9,7 @@ git clone https://github.com/nkoster/runfaas
 cd runfaas
 npm i
 mkdir functions
+echo 'ACCESS_TOKEN_SECRET=MyBigSecret' >>.env
 node server.js
 ```
 
