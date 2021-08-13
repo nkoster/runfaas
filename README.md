@@ -22,7 +22,7 @@ Make or copy a folder inside the **functions/** folder.
 The *name* of that folder will be *name* of the function, and also the *name* of the API endpoint.
 Inside the function *name* folder should live an **index.js** file with a layout like this:
 
-```
+```javascript
 module.exports = (body, res) => {
   const { name } = body
   res.send({ message: `your name is ${name}`})
