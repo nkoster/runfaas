@@ -52,7 +52,7 @@ if (cluster.isMaster) {
     .on('add', _ => restartWorker())
     .on('unlink', _ => restartWorker())
 
-  console.log(`\n--- RunFaaS running at port ${API_PORT}`)
+  console.log(`--- RunFaaS running at port ${API_PORT}`)
 
 }
 
@@ -62,6 +62,13 @@ if (cluster.isWorker) {
 
   app.use(express.json())
   
+  const getDurationInMilliseconds = start => {
+    const NS_PER_SEC = 1e9
+    const NS_TO_MS = 1e6
+    const diff = process.hrtime(start)
+    return (diff[0] * NS_PER_SEC + diff[1]) / NS_TO_MS
+  }
+
   app.use((_, res, next) => {
     const start = process.hrtime()
     res.on('close', _ => {
@@ -70,13 +77,6 @@ if (cluster.isWorker) {
     })
     next()
   })
-  
-  const getDurationInMilliseconds = start => {
-    const NS_PER_SEC = 1e9
-    const NS_TO_MS = 1e6
-    const diff = process.hrtime(start)
-    return (diff[0] * NS_PER_SEC + diff[1]) / NS_TO_MS
-  }
   
   for (let f = 0; f < functions.length; f++) {
     app.post(`/function/${functions[f].name}`, ((req, res) => {
@@ -95,7 +95,7 @@ if (cluster.isWorker) {
   app.listen(API_PORT, _ => console.log(`--- ${functions.length} function${
     functions.length != 1 ? 's' : ''
   } loaded`))
-  
+
 }
 
 })()
