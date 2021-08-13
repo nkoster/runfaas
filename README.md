@@ -25,7 +25,7 @@ Inside the function *name* folder should live an **index.js** file with a layout
 ```javascript
 module.exports = (body, res) => {
   const { name } = body
-  res.send({ message: `your name is ${name}`})
+  res.send({ message: `your name is ${name}` })
 }
 ```
 
