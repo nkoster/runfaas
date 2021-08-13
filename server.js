@@ -2,7 +2,7 @@
 
 require('dotenv').config()
 const useAuth = process.env.AUTHENTICATION === 'false' ? false : true
-const functionsPath = './functions'
+const functionsPath = process.env.FUNCTIONS_PATH || './functions'
 const log = console.log.bind(console)
 const chokidar = require('chokidar')
 const express = require('express')
