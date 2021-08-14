@@ -13,7 +13,7 @@ echo 'ACCESS_TOKEN_SECRET=MyBigSecret' >>.env
 node server.js
 ```
 
-The server will detect files changes inside the **functions/** directory
+The server will detect changes inside the **functions/** directory,
 and will reload whenever new functions are added or when old functions are removed. (experimental)
 
 If you like, you can disable the authentication part by adding the following line to your **.env** file:
