@@ -1,6 +1,7 @@
 const div = document.querySelector('div')
 let socket
 
+
 div.style.fontFamily = 'monospace'
 div.style.fontSize = '1.4em'
 div.style.margin = '30px'
@@ -15,6 +16,7 @@ const connect = _ => {
     socket = new WebSocket('ws://localhost:3030')
     socket.addEventListener('message', evt => {
         div.innerHTML += `${evt.data.replace('--- Invoking f', 'F').replace(' Function finished in', '')}`
+        window.scrollTo(0,document.body.scrollHeight)
     })
     socket.onclose = _ => {
         console.log('Socket closed. Reconnect in 2 seconds.')
