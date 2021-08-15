@@ -118,7 +118,7 @@ if (cluster.isWorker) {
     const start = process.hrtime()
     res.on('close', _ => {
         const durationInMilliseconds = getDurationInMilliseconds(start)
-        const message = `--- Function ended after ${durationInMilliseconds.toLocaleString()} ms`
+        const message = `--- Function finished in ${durationInMilliseconds.toLocaleString()} ms`
         log(message)
         Array.from(sockets.keys()).forEach(socket => {
           socket.send(message.replace('---', '') + '<br>\n')
