@@ -142,7 +142,7 @@ if (cluster.isWorker) {
         return res.status(500).send()
       }
       if (typeof func !== 'function') {
-        log('--- Error: Invalid function')
+        log(`--- Error: Invalid function "${functions[f].name}"`)
         send(new Date(Date.now()).toString().replace(/\((.+)\)/, '') + `Function "${functions[f].name}" is not valid`)
         return res.status(500).send()
       }
