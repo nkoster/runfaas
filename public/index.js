@@ -12,10 +12,24 @@ div.innerHTML = '<pre style="text-shadow:0px 0px 5px black">\n' +
 '(__\\_)\\____/\\_)__)(__) \\_/\\_/\\_/\\_/(____/\n\n</pre>'
 
 
+const setWarningColor = msg => {
+    let style = ''
+    let warning = false
+    if (msg.toLowerCase().includes('not valid')) warning = true
+    if (msg.toLowerCase().includes('invalid')) warning = true
+    if (msg.toLowerCase().includes('error')) warning = true
+    if (msg.toLowerCase().includes('warning')) warning = true
+    if (warning) {
+        style = ' style="color:blue"'
+    }
+    return style
+}
+
 const connect = _ => {
     socket = new WebSocket('ws://localhost:3030')
+
     socket.addEventListener('message', evt => {
-        div.innerHTML += `${evt.data.replace('--- Invoking f', 'F').replace(' Function finished in', '')}`
+        div.innerHTML += `<span${setWarningColor(evt.data)}>${evt.data.replace('--- Invoking f', 'F').replace(' Function finished in', '')}</span>`
         window.scrollTo(0,document.body.scrollHeight)
     })
     socket.onclose = _ => {
