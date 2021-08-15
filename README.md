@@ -47,22 +47,21 @@ module.exports = (body, res) => {
 
 ### Example Function
 
-Here is an example for a function named **test1**, with a dependency **pg**, which is a nodejs postgresql client library.
+Here is an example for a function named **hellofaas**, with a dependency **pg**, which is a nodejs postgresql client library.
 
 ```
-mkdir functions/test1
-cd functions/test1
+mkdir functions/hellofaas
+cd functions/hellofaas
 npm init -y
 npm i pg
 cat > index.js << DUDE
 module.exports = (body, res) => {
   const pg = require('pg')
-  console.log(pg.defaults.host)
   const { name } = body
-  res.send({ message: `name was ${name}` })
+  res.send({ message: `${name}, pg is at host ${pg.defaults.host}`})
 }
 DUDE
 ```
 
-Function **test1** is now available for authenticated POST requests at endpoint http://localhost:3030/function/test1
+Function **hellofaas** is now available for authenticated POST requests at endpoint http://localhost:3030/function/hellofaas
 or for unauthenticated POST requests in case you have disabled authentication.
