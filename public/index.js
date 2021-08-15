@@ -19,6 +19,8 @@ const setWarningColor = msg => {
     if (msg.toLowerCase().includes('invalid')) warning = true
     if (msg.toLowerCase().includes('error')) warning = true
     if (msg.toLowerCase().includes('warning')) warning = true
+    if (msg.toLowerCase().includes('no token')) warning = true
+    if (msg.toLowerCase().includes('not verify')) warning = true
     if (warning) {
         style = ' style="color:red"'
     }
