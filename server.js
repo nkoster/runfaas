@@ -71,6 +71,12 @@ if (cluster.isMaster) {
 
 if (cluster.isWorker) {
 
+  const send = msg => {
+    Array.from(sockets.keys()).forEach(socket => {
+      socket.send(msg)
+    })
+  }
+
   app.use((req, res, next) => {
     if (req.method === 'POST') return next()
     const auth = { login: process.env.ADMIN_USER, password: process.env.ADMIN_PASSWORD }
@@ -120,27 +126,30 @@ if (cluster.isWorker) {
         const durationInMilliseconds = getDurationInMilliseconds(start)
         const message = `--- Function finished in ${durationInMilliseconds.toLocaleString()} ms`
         log(message)
-        Array.from(sockets.keys()).forEach(socket => {
-          socket.send(message.replace('---', '') + '<br>\n')
-        })
+        send(message.replace('---', '') + '<br>\n')
     })
     return next()
   })
 
   for (let f = 0; f < functions.length; f++) {
     app.post(`/function/${functions[f].name}`, authenticateToken, ((req, res) => {
-      const func =
-        require(`${functionsPath}/${functions[f].name}/index`)
+      let func = null
+      try {
+        func = require(`${functionsPath}/${functions[f].name}/index`)
+      } catch (err) {
+        log(err.message)
+        send(new Date(Date.now()).toString().replace(/\((.+)\)/, '') + err.message)
+        return res.status(500).send()
+      }
       functions[f].counter += 1
       const message = `--- Invoking function "${functions[f].name}" (${functions[f].counter})`
       log(message)
       try {
         func(req.body, res)
-        Array.from(sockets.keys()).forEach(socket => {
-          socket.send(new Date(Date.now()).toString().replace(/\((.+)\)/, '') + message)
-        })
+        send(new Date(Date.now()).toString().replace(/\((.+)\)/, '') + message)
       } catch(err) {
         log(err.message)
+        send(new Date(Date.now()).toString().replace(/\((.+)\)/, '') + err.message)
         res.status(500).send()
       }
     }))
