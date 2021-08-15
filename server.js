@@ -77,6 +77,10 @@ if (cluster.isWorker) {
     })
   }
 
+  const myDateString = _ => 
+  new Date(Date.now()).toString().replace(/\((.+)\)/, '')
+    .split(' ').splice(0, 5).join(' ')
+
   app.use((req, res, next) => {
     if (req.method === 'POST') return next()
     const auth = { login: process.env.ADMIN_USER, password: process.env.ADMIN_PASSWORD }
@@ -103,15 +107,17 @@ if (cluster.isWorker) {
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1]
     if (!token) {
-      log('--- No token supplied')
-      send(new Date(Date.now()).toString().replace(/\((.+)\)/, '') + 'No token supplied')
-      return res.status(200).send({ error: 'No token supplied'})
+      const message = 'No token supplied'
+      log(`--- ${message}`)
+      send(`${myDateString()} ${message}`)
+      return res.status(200).send({ error: message })
     }
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
       if (err) {
-        log('--- Token did not verify')
-        send(new Date(Date.now()).toString().replace(/\((.+)\)/, '') + 'Token did not verify')
-        return res.status(200).send({ error: 'Token did not verify'})
+        const message = 'Token did not verify'
+        log(`--- ${message}`)
+        send(`${myDateString()} ${message}`)
+        return res.status(200).send({ error: message })
       }
       req.user = user
       return next()
@@ -137,12 +143,12 @@ if (cluster.isWorker) {
         func = require(`${functionsPath}/${functions[f].name}/index`)
       } catch (err) {
         log('--- Error: ' + err.message)
-        send(new Date(Date.now()).toString().replace(/\((.+)\)/, '') + err.message)
+        send(`${myDateString()} ${err.message}`)
         return res.status(500).send()
       }
       if (typeof func !== 'function') {
         log(`--- Error: Invalid function "${functions[f].name}"`)
-        send(new Date(Date.now()).toString().replace(/\((.+)\)/, '') + `Function "${functions[f].name}" is not valid`)
+        send(`${myDateString()} Function "${functions[f].name}" is not valid`)
         return res.status(500).send()
       }
       functions[f].counter += 1
@@ -150,10 +156,10 @@ if (cluster.isWorker) {
       log(message)
       try {
         func(req.body, res)
-        send(new Date(Date.now()).toString().replace(/\((.+)\)/, '') + message)
+        send(`${myDateString()} ${message}`)
       } catch(err) {
         log(err.message)
-        send(new Date(Date.now()).toString().replace(/\((.+)\)/, '') + err.message)
+        send(`${myDateString()} ${err.message}`)
         res.status(500).send()
       }
     }))
