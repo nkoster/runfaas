@@ -137,8 +137,13 @@ if (cluster.isWorker) {
       try {
         func = require(`${functionsPath}/${functions[f].name}/index`)
       } catch (err) {
-        log(err.message)
+        log('--- Error: ' + err.message)
         send(new Date(Date.now()).toString().replace(/\((.+)\)/, '') + err.message)
+        return res.status(500).send()
+      }
+      if (typeof func !== 'function') {
+        log('--- Error: Invalid function')
+        send(new Date(Date.now()).toString().replace(/\((.+)\)/, '') + `Function "${functions[f].name}" is not valid`)
         return res.status(500).send()
       }
       functions[f].counter += 1
