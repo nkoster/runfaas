@@ -10,6 +10,8 @@ cd runfaas
 npm i
 mkdir functions
 echo 'ACCESS_TOKEN_SECRET=MyBigSecret' >>.env
+echo 'ADMIN_USER=admin' >>.env
+echo 'ADMIN_PASSWORD=AnotherSecret' >>.env
 node server.js
 ```
 
