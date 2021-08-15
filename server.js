@@ -150,7 +150,6 @@ if (cluster.isWorker) {
   app.use(express.static(path.join(__dirname, 'public')))
 
   wss.on('connection', socket => {
-    console.log('--- websocket connection')
     sockets.set(socket, {})
     socket.on('close', _ => sockets.delete(socket))
   })
