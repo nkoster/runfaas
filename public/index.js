@@ -27,7 +27,6 @@ const setWarningColor = msg => {
 
 const connect = _ => {
     socket = new WebSocket('ws://localhost:3030')
-
     socket.addEventListener('message', evt => {
         div.innerHTML += `<span${setWarningColor(evt.data)}>${evt.data.replace('--- Invoking f', 'F').replace(' Function finished in', '')}</span>`
         window.scrollTo(0,document.body.scrollHeight)
