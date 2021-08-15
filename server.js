@@ -13,7 +13,6 @@ const fs = require('fs')
 const jwt = require('jsonwebtoken')
 const ws = require('ws')
 const wss = new ws.Server({ noServer: true })
-const sockets = new Map()
 
 const API_PORT = process.env.API_PORT || 3030
 
@@ -164,11 +163,6 @@ if (cluster.isWorker) {
   
   const path = require('path')
   app.use(express.static(path.join(__dirname, 'public')))
-
-  wss.on('connection', socket => {
-    sockets.set(socket, {})
-    socket.on('close', _ => sockets.delete(socket))
-  })
 
   const server = app.listen(API_PORT, _ => log(`--- ${functions.length} function${
     functions.length != 1 ? 's' : ''
