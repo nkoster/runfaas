@@ -27,9 +27,7 @@ const functions = fs.readdirSync(functionsPath)
     }
   })
 
-if (functions.length === 0) {
-  log(`No functions found in ${functionsPath}/`)
-}
+if (functions.length === 0) log(`No functions found in ${functionsPath}/`)
 
 if (cluster.isMaster) {
 
@@ -83,13 +81,16 @@ if (cluster.isWorker) {
 
   app.use((req, res, next) => {
     if (req.method === 'POST') return next()
-    const auth = { login: process.env.ADMIN_USER, password: process.env.ADMIN_PASSWORD }
+    const auth = {
+      login: process.env.ADMIN_USER,
+      password: process.env.ADMIN_PASSWORD
+    }
     const b64auth = (req.headers.authorization || '').split(' ')[1] || ''
     const [login, password] = Buffer.from(b64auth, 'base64').toString().split(':')
     if (login && password && login === auth.login && password === auth.password) {
       return next()
     }
-    res.set('WWW-Authenticate', 'Basic realm="401"')
+    res.set('WWW-Authenticate', 'Basic realm="RunFaaS Admin Login"')
     res.status(401).send('Authentication required.')
   })
 
