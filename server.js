@@ -99,19 +99,18 @@ if (cluster.isWorker) {
   }
 
   const authenticateToken = (req, res, next) => {
-    const failure = { state: false }
     if (!useAuth) return next()
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1]
     if (!token) {
       log('--- No token supplied')
-      failure.state = true
+      send(new Date(Date.now()).toString().replace(/\((.+)\)/, '') + 'No token supplied')
       return res.status(200).send({ error: 'No token supplied'})
     }
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
       if (err) {
         log('--- Token did not verify')
-        failure.state = true
+        send(new Date(Date.now()).toString().replace(/\((.+)\)/, '') + 'Token did not verify')
         return res.status(200).send({ error: 'Token did not verify'})
       }
       req.user = user
