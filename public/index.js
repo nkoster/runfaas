@@ -33,14 +33,7 @@ const connect = _ => {
         div.innerHTML += `<span${setWarningColor(evt.data)}>${evt.data.replace('--- Invoking f', 'F').replace(' Function finished in', '')}</span>`
         window.scrollTo(0,document.body.scrollHeight)
     })
-    socket.onclose = _ => {
-        console.log('Socket closed. Reconnect in 2 seconds.')
-        setTimeout(_ => {
-            div.innerHTML += '<span style="color:red">' + new Date(Date.now()).toString().replace(/\((.+)\)/, '') + 'Reload</span><br>\n'
-            window.scrollTo(0,document.body.scrollHeight)
-            connect()
-        }, 2000)
-    }
+    socket.onclose = _ => setTimeout(_ => connect(), 1000)
 }
 
 connect()
