@@ -22,6 +22,7 @@ const connect = _ => {
         console.log('Socket closed. Reconnect in 2 seconds.')
         setTimeout(_ => {
             div.innerHTML += '<span style="color:blue">' + new Date(Date.now()).toString().replace(/\((.+)\)/, '') + 'Reload</span><br>\n'
+            window.scrollTo(0,document.body.scrollHeight)
             connect()
         }, 2000)
     }
