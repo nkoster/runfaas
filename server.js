@@ -65,7 +65,7 @@ if (cluster.isMaster) {
 
   log(`--- RunFaaS running at port ${API_PORT}`)
 
-  open(`http://localhost:${API_PORT}`)
+  if (process.env.OPEN_ADMIN_PAGE === 'true') open(`http://localhost:${API_PORT}`)
 
 }
 
