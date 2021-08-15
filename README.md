@@ -65,4 +65,4 @@ DUDE
 ```
 
 Function **test1** is now available for authenticated POST requests at endpoint http://localhost:3030/function/test1
-or for unauthenticated POST requests in case you disabled authentication.
+or for unauthenticated POST requests in case you have disabled authentication.
