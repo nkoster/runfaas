@@ -2,7 +2,7 @@ const div = document.querySelector('div')
 let socket
 
 div.style.fontFamily = 'monospace'
-div.style.fontSize = '1.3em'
+div.style.fontSize = '1.4em'
 div.style.margin = '30px'
 div.innerHTML = '<pre style="text-shadow:0px 0px 5px black">\n' +
 ' ____  _  _  __ _  ____  __    __   ____\n' +
