@@ -20,7 +20,7 @@ const setWarningColor = msg => {
     if (msg.toLowerCase().includes('error')) warning = true
     if (msg.toLowerCase().includes('warning')) warning = true
     if (warning) {
-        style = ' style="color:blue"'
+        style = ' style="color:red"'
     }
     return style
 }
@@ -34,7 +34,7 @@ const connect = _ => {
     socket.onclose = _ => {
         console.log('Socket closed. Reconnect in 2 seconds.')
         setTimeout(_ => {
-            div.innerHTML += '<span style="color:blue">' + new Date(Date.now()).toString().replace(/\((.+)\)/, '') + 'Reload</span><br>\n'
+            div.innerHTML += '<span style="color:red">' + new Date(Date.now()).toString().replace(/\((.+)\)/, '') + 'Reload</span><br>\n'
             window.scrollTo(0,document.body.scrollHeight)
             connect()
         }, 2000)
