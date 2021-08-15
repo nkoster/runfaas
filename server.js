@@ -69,11 +69,7 @@ if (cluster.isMaster) {
 
 if (cluster.isWorker) {
 
-  const send = msg => {
-    Array.from(sockets.keys()).forEach(socket => {
-      socket.send(msg)
-    })
-  }
+  const send = msg => wss.clients.forEach(c => c.send(msg))
 
   const myDateString = _ => 
   new Date(Date.now()).toString().replace(/\((.+)\)/, '')
