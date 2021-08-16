@@ -65,3 +65,7 @@ DUDE
 
 Function **hellofaas** is now available for authenticated POST requests at endpoint http://localhost:3030/function/hellofaas
 or for unauthenticated POST requests in case you have disabled authentication.
+
+There's a tiny "admin" page at http://localhost:3030/ where all invocations (and catched errors) are logged with counters and response times.
+You need to set and use the **ADMIN_USER** and **ADMIN_PASSWORD** in the **.env** to access the "admin" page.
+To do: make this a more useful admin page.
