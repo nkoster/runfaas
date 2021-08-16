@@ -68,7 +68,7 @@ or for unauthenticated POST requests in case you have disabled authentication.
 
 ### Admin Page
 
-There's a tiny "admin" page at http://localhost:3030/ where all invocations (and catched errors) are logged with counters and response times.
+At http://localhost:3030/ lives an "admin" page where all invocations (and catched errors) are logged with counters and response times.
 You need to set and use the **ADMIN_USER** and **ADMIN_PASSWORD** in the **.env** to access the "admin" page.
 
 To do: extend the admin page.
