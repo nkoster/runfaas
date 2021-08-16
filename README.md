@@ -58,7 +58,7 @@ cat > index.js << DUDE
 module.exports = (body, res) => {
   const pg = require('pg')
   const { name } = body
-  res.send({ message: `${name}, pg is at host ${pg.defaults.host}`})
+  res.send({ message: `${name}, pg is at host ${pg.defaults.host}` })
 }
 DUDE
 ```
