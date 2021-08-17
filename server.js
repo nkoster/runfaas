@@ -74,6 +74,11 @@ if (cluster.isWorker) {
   new Date(Date.now()).toString().replace(/\((.+)\)/, '')
     .split(' ').splice(0, 5).join(' ')
 
+  const path = require('path')
+  app.use(express.static(path.join(__dirname, 'public')))
+  
+  app.use(express.json())
+
   app.use((req, res, next) => {
     if (req.method === 'POST') return next()
     const auth = {
@@ -89,8 +94,6 @@ if (cluster.isWorker) {
     res.status(401).send('Authentication required.')
   })
 
-  app.use(express.json())
-  
   const getDurationInMilliseconds = start => {
     const NS_PER_SEC = 1e9
     const NS_TO_MS = 1e6
@@ -161,9 +164,6 @@ if (cluster.isWorker) {
     }))
   }
   
-  const path = require('path')
-  app.use(express.static(path.join(__dirname, 'public')))
-
   const server = app.listen(API_PORT, _ => log(`--- ${functions.length} function${
     functions.length != 1 ? 's' : ''
   } active`))
