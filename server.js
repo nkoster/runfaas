@@ -127,12 +127,13 @@ if (cluster.isWorker) {
   
   app.use((req, res, next) => {
     if (!req.originalUrl.includes('/function/')) return next()
+    const func = req.originalUrl.split('/')[2]
     const start = process.hrtime()
     res.on('close', _ => {
         const durationInMilliseconds = getDurationInMilliseconds(start)
-        const message = `--- Function finished in ${durationInMilliseconds.toLocaleString()} ms`
+        const message = `--- Function "${func}" finished in ${durationInMilliseconds.toLocaleString()} ms`
         log(message)
-        send(message.replace('---', '') + '<br>\n')
+        send(`${myDateString()} ${message.replace('---', '')}`)
     })
     return next()
   })
