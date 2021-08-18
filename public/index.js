@@ -30,7 +30,7 @@ const setWarningColor = msg => {
 const connect = _ => {
     socket = new WebSocket('ws://localhost:3030')
     socket.addEventListener('message', evt => {
-        div.innerHTML += `<span${setWarningColor(evt.data)}>${evt.data.replace('--- Invoking f', 'F').replace(' Function finished in', '')}</span>`
+        div.innerHTML += `<span${setWarningColor(evt.data)}>${evt.data.replace('--- Invoking f', 'F').replace(' Function finished in', '')}</span><br>\n`
         window.scrollTo(0,document.body.scrollHeight)
     })
     socket.onclose = _ => setTimeout(_ => connect(), 1000)
