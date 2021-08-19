@@ -15,6 +15,8 @@ echo 'ADMIN_PASSWORD=AnotherSecret' >>.env
 node server.js
 ```
 
+"MyBigSecret" comes from your authentication endpoint.
+
 The server will detect changes inside the **functions/** directory,
 and will reload whenever new functions are added or when old functions are removed.
 
