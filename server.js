@@ -7,6 +7,22 @@ const log = console.log.bind(console)
 const chokidar = require('chokidar')
 const express = require('express')
 const app = express()
+
+app.use(require('cookie-parser')())
+
+app.use((req, res, next) => {
+  console.log(req.cookies.token)
+  let randomNumber = Math.random().toString()
+  randomNumber = randomNumber.substring(2, randomNumber.length)
+  res.cookie('token', randomNumber, {
+    maxAge: new Date(Date.now() + 10), // 10 minutes
+    httpOnly: false,
+    secure: process.env.NODE_ENV === 'production' ? true : false
+  })
+  console.log('cookie created successfully')
+  next()
+})
+
 const cors = require('cors')
 app.use(cors())
 const cluster = require('cluster')
@@ -77,8 +93,9 @@ if (cluster.isWorker) {
     .split(' ').splice(0, 5).join(' ')
 
   const path = require('path')
+
   app.use(express.static(path.join(__dirname, 'public')))
-  
+
   app.use(express.json())
 
   app.use((req, res, next) => {
@@ -124,7 +141,7 @@ if (cluster.isWorker) {
       return next()
     })
   }
-  
+
   app.use((req, res, next) => {
     if (!req.originalUrl.includes('/function/')) return next()
     const func = req.originalUrl.split('/')[2]
