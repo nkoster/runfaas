@@ -78,7 +78,8 @@ if (cluster.isWorker) {
 
   const path = require('path')
 
-  app.use(express.static(path.join(__dirname, 'public')))
+  app.use('/', express.static(path.join(__dirname, 'ui')))
+  app.use('/admin', express.static(path.join(__dirname, 'public')))
 
   app.use(express.json())
 
