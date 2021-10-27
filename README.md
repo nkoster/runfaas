@@ -2,6 +2,8 @@
 
 Simple "function as a service" server, with authentication.
 
+*Currently, this project is WIP: I'm converting the authorization middleware to OpenIDConnect*
+
 ### Install
 
 ```
