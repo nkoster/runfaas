@@ -1,18 +1,20 @@
 ;(async _ => {
 
 require('dotenv').config()
-const useAuth = process.env.AUTHENTICATION === 'false' ? false : true
+const useAuth = process.env.AUTHENTICATION !== 'false'
 const functionsPath = process.env.FUNCTIONS_PATH || './functions'
 const log = console.log.bind(console)
 const chokidar = require('chokidar')
 const express = require('express')
+const axios = require('axios')
+const https = require('https')
 const app = express()
 const cors = require('cors')
 app.use(cors())
 const cluster = require('cluster')
 const open = require('open')
 const fs = require('fs')
-const jwt = require('jsonwebtoken')
+// const jwt = require('jsonwebtoken')
 const ws = require('ws')
 const wss = new ws.Server({ noServer: true })
 
@@ -29,6 +31,22 @@ const functions = fs.readdirSync(functionsPath)
   })
 
 if (functions.length === 0) log(`No functions found in ${functionsPath}/`)
+
+// At request level
+const agent = new https.Agent({
+  rejectUnauthorized: false
+})
+
+// fetch certificate from oid
+const cert = await axios.get(process.env.OID_CERT_URL, {
+  // Workaround for expired TLS cert in my docker env.
+  httpsAgent: agent
+})
+  .then(r => r.data.keys)
+  .catch(err => {
+    console.log('error', err.message)
+  })
+console.log('CERT', JSON.stringify(cert[0].n, null, 4))
 
 if (cluster.isMaster) {
 
@@ -105,7 +123,7 @@ if (cluster.isWorker) {
     return (diff[0] * NS_PER_SEC + diff[1]) / NS_TO_MS
   }
 
-  const authenticateToken = (req, res, next) => {
+  const authenticateToken = async (req, res, next) => {
     if (!useAuth) return next()
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1]
@@ -115,16 +133,44 @@ if (cluster.isWorker) {
       send(`${myDateString()} ${message}`)
       return res.status(200).send({ error: message })
     }
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-      if (err) {
-        const message = 'Token did not verify'
-        log(`--- ${message}`)
-        send(`${myDateString()} ${message}`)
-        return res.status(200).send({ error: message })
-      }
-      req.user = user
+    // console.log('CERT[0]', cert[0].n)
+
+    // Check if the access_token is valid.
+    const data = await axios.request({
+      url: '/introspect',
+      data: `token=${token}`,
+      method: 'post',
+      baseURL: process.env.OID_BASE_URL,
+      auth: {
+        username: process.env.API_USERNAME,
+        password: process.env.API_PASSWORD
+      },
+    }).then(res => res.data)
+
+    // Valid.
+    if (data.active) {
+      // To do: ophalen user info als JWT en jwt.verify() met cert[0].n
       return next()
-    })
+    }
+
+    // Not valid.
+    return res.status(401).send({ active: false})
+
+    // Below is commented out but kept for reference.
+
+    // jwt.verify(token, cert[0].n,(err, user) => {
+    //   if (err) {
+    //     console.log('TOKEN', token)
+		//     console.log(err.message)
+    //     const message = `Token "${token}" did not verify against secret "${cert[0].n}"`
+    //     log(`--- ${message}`)
+    //     send(`${myDateString()} ${message}`)
+    //     return res.status(200).send({ error: message })
+    //   }
+    //   req.user = user
+    //   return next()
+    // })
+
   }
 
   app.use((req, res, next) => {
@@ -170,7 +216,7 @@ if (cluster.isWorker) {
   }
   
   const server = app.listen(API_PORT, _ => log(`--- ${functions.length} function${
-    functions.length != 1 ? 's' : ''
+    functions.length !== 1 ? 's' : ''
   } active`))
   
   server.on('upgrade', (request, socket, head) => {
