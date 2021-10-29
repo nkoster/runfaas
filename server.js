@@ -145,10 +145,16 @@ if (cluster.isWorker) {
         username: process.env.API_USERNAME,
         password: process.env.API_PASSWORD
       },
-    }).then(res => res.data)
+    })
+      .then(res => res.data)
+      .catch(err => {
+        console.log(err.message)
+        res.status(501).send(err.message)
+      })
 
     // Valid.
     if (data.active) {
+
       // To do: ophalen user info als JWT en jwt.verify() met cert[0].n
       return next()
     }
