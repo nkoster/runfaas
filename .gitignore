@@ -3,3 +3,4 @@ functions
 sandbox
 .env
 *.rest
+.idea
