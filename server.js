@@ -14,12 +14,11 @@ app.use(cors())
 const cluster = require('cluster')
 const open = require('open')
 const fs = require('fs')
-// const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken')
 const ws = require('ws')
 const wss = new ws.Server({ noServer: true })
-
+const getPem = require('rsa-pem-from-mod-exp')
 const API_PORT = process.env.API_PORT || 3030
-
 const fileCounter = { state: 0 }
 
 const functions = fs.readdirSync(functionsPath)
@@ -32,21 +31,17 @@ const functions = fs.readdirSync(functionsPath)
 
 if (functions.length === 0) log(`No functions found in ${functionsPath}/`)
 
-// At request level
-const agent = new https.Agent({
-  rejectUnauthorized: false
-})
-
 // fetch certificate from oid
 const cert = await axios.get(process.env.OID_CERT_URL, {
-  // Workaround for expired TLS cert in my docker env.
-  httpsAgent: agent
+  // Workaround for expired TLS cert in my docker environment
+  httpsAgent: new https.Agent({
+    rejectUnauthorized: false
+  })
 })
   .then(r => r.data.keys)
   .catch(err => {
     console.log('error', err.message)
   })
-console.log('CERT', JSON.stringify(cert[0].n, null, 4))
 
 if (cluster.isMaster) {
 
@@ -91,7 +86,7 @@ if (cluster.isWorker) {
   const send = msg => wss.clients.forEach(c => c.send(msg))
 
   const myDateString = _ => 
-  new Date(Date.now()).toString().replace(/\((.+)\)/, '')
+    new Date(Date.now()).toString().replace(/\((.+)\)/, '')
     .split(' ').splice(0, 5).join(' ')
 
   const path = require('path')
@@ -123,6 +118,7 @@ if (cluster.isWorker) {
     return (diff[0] * NS_PER_SEC + diff[1]) / NS_TO_MS
   }
 
+  // OpenIDConnect authentication middleware.
   const authenticateToken = async (req, res, next) => {
     if (!useAuth) return next()
     const authHeader = req.headers['authorization']
@@ -133,10 +129,10 @@ if (cluster.isWorker) {
       send(`${myDateString()} ${message}`)
       return res.status(200).send({ error: message })
     }
-    // console.log('CERT[0]', cert[0].n)
 
     // Check if the access_token is valid.
-    const data = await axios.request({
+    let data
+    data = await axios.request({
       url: '/introspect',
       data: `token=${token}`,
       method: 'post',
@@ -152,30 +148,38 @@ if (cluster.isWorker) {
         res.status(501).send(err.message)
       })
 
-    // Valid.
+    // The token is "active", let's continue...
     if (data.active) {
+      const ssoContext = await axios.request({
+          url: '/ssocontext',
+          baseURL: process.env.OID_BASE_URL,
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        .then(r => r.data)
+        .catch(err => console.log(err.message))
 
-      // To do: ophalen user info als JWT en jwt.verify() met cert[0].n
+      // Verify the ssoContext JWT
+      const modulus = cert[0].n
+      const exponent = cert[0].e
+      const pem = getPem(modulus, exponent)
+      jwt.verify(ssoContext, pem, { algorithms: 'RS256' }, (err, user) => {
+        if (err) {
+          console.log(err.message)
+          const message = `SSOContext did not verify against secret "${pem}"`
+          log(`--- ${message}`)
+          send(`${myDateString()} ${message}`)
+          return res.status(500).send({error: err.message})
+        }
+        console.log('USER', user)
+        req.user = user
+      })
       return next()
     }
 
     // Not valid.
     return res.status(401).send({ active: false})
-
-    // Below is commented out but kept for reference.
-
-    // jwt.verify(token, cert[0].n,(err, user) => {
-    //   if (err) {
-    //     console.log('TOKEN', token)
-		//     console.log(err.message)
-    //     const message = `Token "${token}" did not verify against secret "${cert[0].n}"`
-    //     log(`--- ${message}`)
-    //     send(`${myDateString()} ${message}`)
-    //     return res.status(200).send({ error: message })
-    //   }
-    //   req.user = user
-    //   return next()
-    // })
 
   }
 
