@@ -31,17 +31,18 @@ const functions = fs.readdirSync(functionsPath)
 
 if (functions.length === 0) log(`No functions found in ${functionsPath}/`)
 
-// fetch certificate from oid
-const cert = await axios.get(process.env.OID_CERT_URL, {
-  // Workaround for expired TLS cert in my docker environment
-  httpsAgent: new https.Agent({
-    rejectUnauthorized: false
-  })
-})
-  .then(r => r.data.keys)
-  .catch(err => {
-    console.log('error', err.message)
-  })
+// Fetch certificate data from OIDC end-point
+// const cert = await axios.get(process.env.OID_CERT_URL, {
+//   // Workaround for expired TLS cert in my docker environment
+//   httpsAgent: new https.Agent({
+//     rejectUnauthorized: false
+//   })
+// })
+//   .then(r => r.data.keys)
+//   .catch(err => {
+//     throw new Error(err)
+//     // console.log('error', err.message)
+//   })
 
 if (cluster.isMaster) {
 
@@ -120,6 +121,7 @@ if (cluster.isWorker) {
 
   // OpenIDConnect authentication middleware.
   const authenticateToken = async (req, res, next) => {
+    if (useAuth) return next() // HACK
     if (!useAuth) return next()
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1]
@@ -127,7 +129,7 @@ if (cluster.isWorker) {
       const message = 'No token supplied'
       log(`--- ${message}`)
       send(`${myDateString()} ${message}`)
-      return res.status(200).send({ error: message })
+      return res.status(401).send({ error: message })
     }
 
     // Check if the access_token is valid.
@@ -166,13 +168,12 @@ if (cluster.isWorker) {
       const pem = getPem(modulus, exponent)
       jwt.verify(ssoContext, pem, { algorithms: 'RS256' }, (err, user) => {
         if (err) {
-          console.log(err.message)
           const message = `SSOContext did not verify against secret "${pem}"`
           log(`--- ${message}`)
+          log(`--- ${err.message}`)
           send(`${myDateString()} ${message}`)
           return res.status(500).send({error: err.message})
         }
-        console.log('USER', user)
         req.user = user
       })
       return next()
