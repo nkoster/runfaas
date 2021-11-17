@@ -1,4 +1,4 @@
-FROM --platform=${TARGETPLATFORM:-linux/amd64} node:12.13.0-alpine as ship
+FROM --platform=${TARGETPLATFORM:-linux/amd64} ubuntu:20.04 as builder
 
 WORKDIR /app
 
@@ -12,15 +12,38 @@ COPY ui/ ui/
 COPY .env .env
 
 RUN \
-    apk --no-cache add curl ca-certificates && \
-    addgroup -S app && adduser -S -g app app && \
+    apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends install -y \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    git \
+    gnupg \
+    inetutils-ping \
+    less \
+    locales \
+    net-tools \
+    nginx \
+    openssh-client \
+    parallel \
+    postgresql-client \
+    telnet \
+    time \
+    tzdata \
+    vim-tiny \
+    kafkacat \
+    netcat \
+    wget && \
+    rm -rf /var/lib/apt/lists/ && \
+    groupadd app && \
+    useradd -g app -m -s /bin/bash app && \
     mkdir -p /app && \
+    curl -sL https://deb.nodesource.com/setup_17.x  | bash - && \
+    apt-get -y install nodejs && \
     npm i && \
     chown app:app -R /app && \
     chmod 777 /tmp
 
-RUN rm .env
-
 USER app
 
-CMD ["/usr/local/bin/node", "server.js"]
+CMD ["node", "server.js"]
