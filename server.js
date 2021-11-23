@@ -32,17 +32,21 @@ const functions = fs.readdirSync(functionsPath)
 if (functions.length === 0) log(`No functions found in ${functionsPath}/`)
 
 // Fetch certificate data from OIDC end-point
-// const cert = await axios.get(process.env.OID_CERT_URL, {
-//   // Workaround for expired TLS cert in my docker environment
-//   httpsAgent: new https.Agent({
-//     rejectUnauthorized: false
-//   })
-// })
-//   .then(r => r.data.keys)
-//   .catch(err => {
-//     throw new Error(err)
-//     // console.log('error', err.message)
-//   })
+let cert = {}
+if (useAuth) {
+  cert = await axios.get(process.env.OID_CERT_URL, {
+    // Workaround for expired TLS cert in my docker environment
+    httpsAgent: new https.Agent({
+      rejectUnauthorized: false
+    })
+  })
+    .then(r => r.data.keys)
+    .catch(err => {
+      throw new Error(err)
+      // console.log('error', err.message)
+    })
+}
+console.log('cert is', cert)
 
 if (cluster.isMaster) {
 
@@ -121,7 +125,7 @@ if (cluster.isWorker) {
 
   // OpenIDConnect authentication middleware.
   const authenticateToken = async (req, res, next) => {
-    if (useAuth) return next() // HACK
+    // if (useAuth) return next() // HACK
     if (!useAuth) return next()
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1]
@@ -141,7 +145,7 @@ if (cluster.isWorker) {
       baseURL: process.env.OID_BASE_URL,
       auth: {
         username: process.env.API_USERNAME,
-        password: process.env.API_PASSWORD
+        password: process.env.OPENID_PASSWORD
       },
     })
       .then(res => res.data)
