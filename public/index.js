@@ -28,7 +28,7 @@ const setWarningColor = msg => {
 }
 
 const connect = _ => {
-    socket = new WebSocket('wss://faas.fhirstation.net')
+    socket = new WebSocket(`wss://${location.hostname}`)
     socket.addEventListener('message', evt => {
         div.innerHTML += `<span${setWarningColor(evt.data)}>${evt.data.replace('--- Invoking f', 'F').replace(' Function finished in', '')}</span><br>\n`
         window.scrollTo(0,document.body.scrollHeight)
