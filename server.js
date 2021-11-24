@@ -46,7 +46,6 @@ if (useAuth) {
       // console.log('error', err.message)
     })
 }
-console.log('cert is', cert)
 
 if (cluster.isMaster) {
 
@@ -164,7 +163,7 @@ if (cluster.isWorker) {
           }
         })
         .then(r => r.data)
-        .catch(err => console.log(err.message))
+        .catch(err => log(`--- ${err.message}`))
 
       // Verify the ssoContext JWT
       const modulus = cert[0].n
