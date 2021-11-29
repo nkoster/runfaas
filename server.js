@@ -178,6 +178,9 @@ if (cluster.isWorker) {
           return res.status(500).send({error: err.message})
         }
         req.user = user
+        if (user.organization.pv_entity_id != 3) {
+          return req.status(500).send({error: 'User is not allowed.'})
+        }
       })
       return next()
     }
