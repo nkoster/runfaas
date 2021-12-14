@@ -124,7 +124,6 @@ if (cluster.isWorker) {
 
   // OpenIDConnect authentication middleware.
   const authenticateToken = async (req, res, next) => {
-    // if (useAuth) return next() // HACK
     if (!useAuth) return next()
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1]
@@ -178,15 +177,21 @@ if (cluster.isWorker) {
           return res.status(500).send({error: err.message})
         }
         req.user = user
-        if (user.organization.pv_entity_id !== 3) {
-          return req.status(500).send({error: 'User is not allowed.'})
+        if (user.organization.pv_entity_id === 3) {
+          return next()
         }
+        const message = 'User not allowed.'
+        log(`--- ${message}`)
+        send(`${myDateString()} ${message}`)
+        return res.status(401).send({error: message})
       })
-      return next()
     }
-
-    console.log('--- Error: access token is not active.')
-    return res.status(401).send({ active: false})
+    else {
+      const message = 'Access token is not active.'
+      log(`--- ${message}`)
+      send(`${myDateString()} ${message}`)
+      return res.status(401).send(message)
+    }
 
   }
 
