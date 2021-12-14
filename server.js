@@ -43,7 +43,6 @@ if (useAuth) {
     .then(r => r.data.keys)
     .catch(err => {
       throw new Error(err)
-      // console.log('error', err.message)
     })
 }
 
@@ -87,11 +86,14 @@ if (cluster.isMaster) {
 
 if (cluster.isWorker) {
 
-  const send = msg => wss.clients.forEach(c => c.send(msg))
-
-  const myDateString = _ => 
+  const myDateString = _ =>
     new Date(Date.now()).toString().replace(/\((.+)\)/, '')
     .split(' ').splice(0, 5).join(' ')
+
+  const send = msg => wss.clients.forEach(c => {
+    log(`--- ${msg}`)
+    c.send(`${myDateString()} ${msg}`)
+  })
 
   const path = require('path')
 
@@ -124,13 +126,15 @@ if (cluster.isWorker) {
 
   // OpenIDConnect authentication middleware.
   const authenticateToken = async (req, res, next) => {
+
+    // If authentication is disabled, just continue...
     if (!useAuth) return next()
+
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1]
     if (!token) {
       const message = 'No token supplied'
-      log(`--- ${message}`)
-      send(`${myDateString()} ${message}`)
+      send(message)
       return res.status(401).send({ error: message })
     }
 
@@ -148,7 +152,7 @@ if (cluster.isWorker) {
     })
       .then(res => res.data)
       .catch(err => {
-        console.log(err.message)
+        send(err.message)
         res.status(501).send(err.message)
       })
 
@@ -162,7 +166,7 @@ if (cluster.isWorker) {
           }
         })
         .then(r => r.data)
-        .catch(err => log(`--- ${err.message}`))
+        .catch(err => send(err.message))
 
       // Verify the ssoContext JWT
       const modulus = cert[0].n
@@ -171,25 +175,22 @@ if (cluster.isWorker) {
       jwt.verify(ssoContext, pem, { algorithms: 'RS256' }, (err, user) => {
         if (err) {
           const message = `SSOContext did not verify against secret "${pem}"`
-          log(`--- ${message}`)
-          log(`--- ${err.message}`)
-          send(`${myDateString()} ${message}`)
+          send(message)
           return res.status(500).send({error: err.message})
         }
         req.user = user
         if (user.organization.pv_entity_id === 3) {
+          // All good, continue middleware.
           return next()
         }
         const message = 'User not allowed.'
-        log(`--- ${message}`)
-        send(`${myDateString()} ${message}`)
+        send(message)
         return res.status(401).send({error: message})
       })
     }
     else {
       const message = 'Access token is not active.'
-      log(`--- ${message}`)
-      send(`${myDateString()} ${message}`)
+      send(message)
       return res.status(401).send(message)
     }
 
@@ -200,10 +201,9 @@ if (cluster.isWorker) {
     const func = req.originalUrl.split('/')[2]
     const start = process.hrtime()
     res.on('close', _ => {
-        const durationInMilliseconds = getDurationInMilliseconds(start)
-        const message = `--- Function "${func}" finished in ${durationInMilliseconds.toLocaleString()} ms`
-        log(message)
-        send(`${myDateString()} ${message.replace('---', '')}`)
+      const durationInMilliseconds = getDurationInMilliseconds(start)
+      const message = `Function "${func}" finished in ${durationInMilliseconds.toLocaleString()} ms`
+      send(message)
     })
     return next()
   })
@@ -214,24 +214,22 @@ if (cluster.isWorker) {
       try {
         func = require(`${functionsPath}/${functions[f].name}/index`)
       } catch (err) {
-        log('--- Error: ' + err.message)
-        send(`${myDateString()} ${err.message}`)
+        const message = 'Error: ' + err.message
+        send(message)
         return res.status(500).send()
       }
       if (typeof func !== 'function') {
-        log(`--- Error: Invalid function "${functions[f].name}"`)
-        send(`${myDateString()} Function "${functions[f].name}" is not valid`)
+        const message = `Error: Invalid function "${functions[f].name}"`
+        send(message)
         return res.status(500).send()
       }
       functions[f].counter += 1
-      const message = `--- Invoking function "${functions[f].name}" (${functions[f].counter})`
-      log(message)
+      const message = `Invoking function "${functions[f].name}" (${functions[f].counter})`
       try {
         func(req.body, res)
-        send(`${myDateString()} ${message}`)
+        send(message)
       } catch(err) {
-        log(err.message)
-        send(`${myDateString()} ${err.message}`)
+        send(err.message)
         res.status(500).send()
       }
     }))
